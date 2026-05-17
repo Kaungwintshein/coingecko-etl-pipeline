@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="CoinGecko Crypto ETL Pipeline portfolio showcase for hiring managers and data engineering reviewers." />
+  <title>CoinGecko Crypto ETL Pipeline Showcase</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            ink: '#111827',
+            paper: '#f7f8fb',
+            line: '#d9e2ec',
+            mint: '#10b981',
+            cyan: '#0891b2',
+            amber: '#f59e0b',
+            plum: '#7c3aed'
+          },
+          boxShadow: {
+            panel: '0 20px 60px rgba(17, 24, 39, 0.10)'
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    :root { color-scheme: light; }
+    .dark { color-scheme: dark; }
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .grid-bg {
+      background-image:
+        linear-gradient(to right, rgba(148, 163, 184, 0.16) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148, 163, 184, 0.16) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+    .dark .grid-bg {
+      background-image:
+        linear-gradient(to right, rgba(148, 163, 184, 0.10) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148, 163, 184, 0.10) 1px, transparent 1px);
+    }
+    details > summary::-webkit-details-marker { display: none; }
+    .flow-line { min-width: 36px; height: 2px; background: currentColor; opacity: 0.32; }
+    @media (max-width: 767px) { .flow-line { width: 2px; height: 28px; min-width: 2px; } }
+  </style>
+</head>
+<body class="bg-paper text-slate-950 antialiased dark:bg-slate-950 dark:text-slate-100">
+  <header class="sticky top-0 z-50 border-b border-slate-200/80 bg-white/85 backdrop-blur dark:border-slate-800 dark:bg-slate-950/85">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+      <a href="#top" class="flex items-center gap-3" aria-label="CoinGecko ETL Showcase home">
+        <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-ink text-sm font-bold text-white dark:bg-white dark:text-ink">ETL</span>
+        <span class="hidden text-sm font-semibold tracking-wide text-slate-800 dark:text-slate-200 sm:inline">CoinGecko Pipeline Showcase</span>
+      </a>
+      <nav class="hidden items-center gap-6 text-sm font-medium text-slate-600 dark:text-slate-300 md:flex" aria-label="Main navigation">
+        <a href="#architecture" class="hover:text-cyan">Architecture</a>
+        <a href="#proof" class="hover:text-cyan">Proof</a>
+        <a href="#decisions" class="hover:text-cyan">Decisions</a>
+        <a href="#schema" class="hover:text-cyan">Schema</a>
+      </nav>
+      <button id="themeToggle" type="button" class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:border-cyan hover:text-cyan dark:border-slate-700 dark:text-slate-200" aria-label="Toggle dark mode">Mode</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="grid-bg border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+      <div class="mx-auto grid min-h-[88vh] max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-20">
+        <div class="flex flex-col justify-center">
+          <p class="mb-5 inline-flex w-fit items-center rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-sm font-semibold text-emerald-700 dark:text-emerald-300">Verified local Airflow run: success</p>
+          <h1 class="max-w-4xl text-4xl font-black leading-tight tracking-normal text-slate-950 dark:text-white sm:text-5xl lg:text-6xl">CoinGecko Crypto ETL Pipeline Showcase</h1>
+          <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-650 text-slate-600 dark:text-slate-300">A hiring-manager-friendly walkthrough of a production-style data pipeline: API extraction, raw landing, pandas transformation, PostgreSQL warehouse upserts, and Apache Airflow scheduling.</p>
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a href="https://github.com/kaungwintshein/coingecko-etl-pipeline" class="inline-flex items-center justify-center rounded-lg bg-ink px-5 py-3 text-sm font-bold text-white shadow-panel transition hover:bg-slate-700 dark:bg-white dark:text-ink dark:hover:bg-slate-200">View GitHub Repository</a>
+            <a href="#warehouse-dashboard" class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:border-cyan hover:text-cyan dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">Open Warehouse Dashboard</a>
+          </div>
+          <dl class="mt-10 grid max-w-2xl grid-cols-3 gap-3 text-sm">
+            <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <dt class="text-slate-500 dark:text-slate-400">Assets</dt>
+            <dd class="mt-1 text-2xl font-black text-slate-950 dark:text-white">1</dd>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <dt class="text-slate-500 dark:text-slate-400">Observations</dt>
+              <dd class="mt-1 text-2xl font-black text-slate-950 dark:text-white">721</dd>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <dt class="text-slate-500 dark:text-slate-400">Daily metrics</dt>
+              <dd class="mt-1 text-2xl font-black text-slate-950 dark:text-white">31</dd>
+            </div>
+          </dl>
+        </div>
+        <div class="flex items-center">
+          <div class="w-full rounded-lg border border-slate-200 bg-white p-5 shadow-panel dark:border-slate-800 dark:bg-slate-900">
+            <div class="mb-4 flex items-center justify-between">
+              <div>
+                <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Run evidence</p>
+                <p class="font-mono text-xs text-slate-500 dark:text-slate-400">showcase_capture_123456</p>
+              </div>
+              <span class="rounded-md bg-mint/10 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300">SUCCESS</span>
+            </div>
+            <img src="../assets/screenshots/airflow_graph.png" alt="Airflow Graph View showing extract_task, transform_task, and load_task succeeded" class="aspect-[16/10] w-full rounded-md border border-slate-200 object-cover object-center dark:border-slate-700" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture" class="border-b border-slate-200 bg-paper py-16 dark:border-slate-800 dark:bg-slate-950">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mb-10 max-w-3xl">
+          <p class="text-sm font-bold uppercase tracking-wide text-cyan">System Architecture</p>
+          <h2 class="mt-3 text-3xl font-black tracking-normal text-slate-950 dark:text-white">A small pipeline with real production boundaries.</h2>
+          <p class="mt-4 text-slate-600 dark:text-slate-300">The stages stay intentionally separate so failures are observable, raw evidence is retained, and warehouse loads are repeatable.</p>
+        </div>
+        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-panel dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+          <div class="flex flex-col items-stretch gap-3 md:flex-row md:items-center md:justify-between">
+            <article class="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
+              <p class="text-xs font-bold uppercase text-slate-500">Source</p>
+              <h3 class="mt-2 font-black">CoinGecko API</h3>
+              <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Public market chart endpoint with optional API key.</p>
+            </article>
+            <span class="flow-line self-center text-cyan"></span>
+            <article class="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
+              <p class="text-xs font-bold uppercase text-slate-500">Landing</p>
+              <h3 class="mt-2 font-black">Raw JSON</h3>
+              <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Timestamped immutable source payloads.</p>
+            </article>
+            <span class="flow-line self-center text-amber"></span>
+            <article class="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
+              <p class="text-xs font-bold uppercase text-slate-500">Transform</p>
+              <h3 class="mt-2 font-black">Pandas</h3>
+              <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Typed cleaning, daily metrics, moving average.</p>
+            </article>
+            <span class="flow-line self-center text-plum"></span>
+            <article class="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
+              <p class="text-xs font-bold uppercase text-slate-500">Warehouse</p>
+              <h3 class="mt-2 font-black">PostgreSQL</h3>
+              <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Dimension/fact tables with idempotent upserts.</p>
+            </article>
+          </div>
+          <div class="mt-6 rounded-lg border border-dashed border-cyan/50 bg-cyan/5 p-4 text-sm text-cyan-900 dark:text-cyan-100">
+            Apache Airflow schedules and observes the pipeline as three explicit tasks: extract_task, transform_task, load_task.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="proof" class="bg-white py-16 dark:bg-slate-950">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mb-10 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+          <div class="max-w-3xl">
+            <p class="text-sm font-bold uppercase tracking-wide text-cyan">Visual Proof</p>
+            <h2 class="mt-3 text-3xl font-black tracking-normal text-slate-950 dark:text-white">The run is scheduled, observable, and loaded.</h2>
+          </div>
+          <p class="max-w-xl text-slate-600 dark:text-slate-300">The screenshot is captured from the local Airflow Graph View after a successful DAG run. The dashboard cards mirror warehouse counts from PostgreSQL.</p>
+        </div>
+        <div class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <figure class="rounded-lg border border-slate-200 bg-paper p-4 shadow-panel dark:border-slate-800 dark:bg-slate-900">
+            <img src="../assets/screenshots/airflow_graph.png" alt="Successful Airflow DAG graph" class="w-full rounded-md border border-slate-200 bg-white object-contain dark:border-slate-700 dark:bg-slate-950" />
+            <figcaption class="mt-3 text-sm text-slate-600 dark:text-slate-300">Airflow Graph View: extract_task, transform_task, and load_task completed successfully.</figcaption>
+          </figure>
+          <div id="warehouse-dashboard" class="rounded-lg border border-slate-200 bg-paper p-5 shadow-panel dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-sm font-bold uppercase tracking-wide text-amber">Warehouse Dashboard</p>
+                <h3 class="mt-2 text-xl font-black">fact_daily_crypto_market_metric</h3>
+              </div>
+              <span class="rounded-md bg-amber/10 px-3 py-1 text-xs font-bold text-amber-700 dark:text-amber-300">BI MOCK</span>
+            </div>
+            <div class="mt-6 h-56"><canvas id="priceChart" aria-label="Bitcoin seven day moving average line chart"></canvas></div>
+            <div class="mt-8 h-48"><canvas id="volumeChart" aria-label="Bitcoin daily volume bar chart"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="decisions" class="border-y border-slate-200 bg-paper py-16 dark:border-slate-800 dark:bg-slate-950">
+      <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <p class="text-sm font-bold uppercase tracking-wide text-cyan">Engineering Decisions</p>
+        <h2 class="mt-3 text-3xl font-black tracking-normal text-slate-950 dark:text-white">Why this is not one monolithic script.</h2>
+        <div class="mt-8 space-y-3">
+          <details class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm open:border-cyan dark:border-slate-800 dark:bg-slate-900" open>
+            <summary class="flex cursor-pointer items-center justify-between gap-4 font-bold"><span>01. Repo setup and dependency isolation</span><span class="text-cyan">Open</span></summary>
+            <p class="mt-4 text-slate-600 dark:text-slate-300">Pinned dependencies, `.env.example`, and ignored data zones make the project reproducible without leaking secrets. Skipping this step creates reviewer friction and makes environment drift hard to diagnose.</p>
+          </details>
+          <details class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm open:border-cyan dark:border-slate-800 dark:bg-slate-900">
+            <summary class="flex cursor-pointer items-center justify-between gap-4 font-bold"><span>02. Extraction with requests and Tenacity retries</span><span class="text-cyan">Open</span></summary>
+            <p class="mt-4 text-slate-600 dark:text-slate-300">The extractor handles timeouts, rate limits, and transient API errors before writing timestamped raw JSON. Skipping this makes outages look like data quality issues and removes the audit trail.</p>
+          </details>
+          <details class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm open:border-cyan dark:border-slate-800 dark:bg-slate-900">
+            <summary class="flex cursor-pointer items-center justify-between gap-4 font-bold"><span>03. Pandas cleaning and analytical modeling</span><span class="text-cyan">Open</span></summary>
+            <p class="mt-4 text-slate-600 dark:text-slate-300">Raw API arrays become typed, named, deduplicated rows with daily aggregates and a 7-day moving average. Skipping transformation pushes inconsistent business logic into every downstream query.</p>
+          </details>
+          <details class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm open:border-cyan dark:border-slate-800 dark:bg-slate-900">
+            <summary class="flex cursor-pointer items-center justify-between gap-4 font-bold"><span>04. PostgreSQL upserts and stable schema</span><span class="text-cyan">Open</span></summary>
+            <p class="mt-4 text-slate-600 dark:text-slate-300">Dimension and fact tables use primary keys and `ON CONFLICT DO UPDATE`, so re-runs are safe. Blind appends would duplicate facts and inflate metrics.</p>
+          </details>
+          <details class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm open:border-cyan dark:border-slate-800 dark:bg-slate-900">
+            <summary class="flex cursor-pointer items-center justify-between gap-4 font-bold"><span>05. Airflow orchestration and operational visibility</span><span class="text-cyan">Open</span></summary>
+            <p class="mt-4 text-slate-600 dark:text-slate-300">Airflow separates the run into observable tasks with retries, scheduling, and logs. Without orchestration, a failed load can be hard to distinguish from a failed extraction.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section id="schema" class="bg-white py-16 dark:bg-slate-950">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mb-10 max-w-3xl">
+          <p class="text-sm font-bold uppercase tracking-wide text-cyan">Warehouse Schema Viewer</p>
+          <h2 class="mt-3 text-3xl font-black tracking-normal text-slate-950 dark:text-white">A compact dimensional model.</h2>
+        </div>
+        <div class="grid gap-6 lg:grid-cols-3">
+          <section class="rounded-lg border border-slate-200 bg-paper p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <h3 class="font-black">dim_crypto_asset</h3>
+            <p class="mt-1 text-sm text-slate-500">Primary key: asset_key</p>
+            <ul class="mt-4 space-y-2 text-sm">
+              <li><b>asset_key</b> BIGSERIAL PK</li><li><b>coin_id</b> TEXT UNIQUE</li><li><b>vs_currency</b> TEXT UNIQUE</li><li><b>created_at</b> TIMESTAMPTZ</li><li><b>updated_at</b> TIMESTAMPTZ</li>
+            </ul>
+          </section>
+          <section class="rounded-lg border border-slate-200 bg-paper p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <h3 class="font-black">fact_crypto_market_observation</h3>
+            <p class="mt-1 text-sm text-slate-500">PK: asset_key, observed_at</p>
+            <ul class="mt-4 space-y-2 text-sm">
+              <li><b>asset_key</b> BIGINT FK</li><li><b>observed_at</b> TIMESTAMPTZ</li><li><b>price_usd</b> NUMERIC(18,8)</li><li><b>market_cap_usd</b> NUMERIC(24,4)</li><li><b>total_volume_usd</b> NUMERIC(24,4)</li>
+            </ul>
+          </section>
+          <section class="rounded-lg border border-slate-200 bg-paper p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <h3 class="font-black">fact_daily_crypto_market_metric</h3>
+            <p class="mt-1 text-sm text-slate-500">PK: asset_key, metric_date</p>
+            <ul class="mt-4 space-y-2 text-sm">
+              <li><b>metric_date</b> DATE</li><li><b>avg_price_usd</b> NUMERIC(18,8)</li><li><b>total_volume_usd</b> NUMERIC(24,4)</li><li><b>price_7d_moving_avg_usd</b> NUMERIC(18,8)</li><li><b>loaded_at</b> TIMESTAMPTZ</li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section id="verification" class="border-t border-slate-200 bg-ink py-16 text-slate-100 dark:border-slate-800">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <p class="text-sm font-bold uppercase tracking-wide text-mint">Verification Terminal</p>
+        <h2 class="mt-3 text-3xl font-black tracking-normal text-white">Commands that prove the pipeline works.</h2>
+        <pre class="mt-8 overflow-x-auto rounded-lg border border-slate-700 bg-slate-950 p-5 text-sm leading-7 text-slate-200"><code>$ make run
+raw_file=data/raw/coingecko_market_chart_20260517T210242Z.json
+observations_file=data/processed/crypto_market_observations_20260517T210242Z.csv.gz
+daily_metrics_file=data/processed/daily_crypto_market_metrics_20260517T210242Z.csv.gz
+asset_key=1
+observation_rows_upserted=721
+daily_metric_rows_upserted=31
+
+$ docker compose exec -T postgres psql -U warehouse_user -d crypto_warehouse -c "select count(*) as dim_assets from dim_crypto_asset;"
+ dim_assets
+------------
+          1
+
+$ docker compose exec -T postgres psql -U warehouse_user -d crypto_warehouse -c "select count(*) as observations from fact_crypto_market_observation;"
+ observations
+--------------
+          721
+
+$ docker compose exec -T postgres psql -U warehouse_user -d crypto_warehouse -c "select count(*) as daily_metrics from fact_daily_crypto_market_metric;"
+ daily_metrics
+---------------
+            31</code></pre>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white py-8 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
+    <div class="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-4 sm:px-6 md:flex-row lg:px-8">
+      <p>CoinGecko ETL Pipeline Showcase</p>
+      <p>Built for data engineering portfolio review.</p>
+    </div>
+  </footer>
+
+  <script>
+    const root = document.documentElement;
+    const toggle = document.getElementById('themeToggle');
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme === 'dark' || (!storedTheme && matchMedia('(prefers-color-scheme: dark)').matches)) {
+      root.classList.add('dark');
+    }
+    toggle.addEventListener('click', () => {
+      root.classList.toggle('dark');
+      localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    const chartTextColor = () => root.classList.contains('dark') ? '#cbd5e1' : '#334155';
+    const chartGridColor = () => root.classList.contains('dark') ? 'rgba(148,163,184,0.18)' : 'rgba(100,116,139,0.18)';
+
+    // Real data queried from fact_daily_crypto_market_metric on 2026-05-17
+    const warehouseRows = [
+      ["2026-04-17",77402.57,77402.57,123639311215],
+      ["2026-04-18",76935.29,76468.01,1718485771089],
+      ["2026-04-19",76400.49,75330.89,1298529432889],
+      ["2026-04-20",76091.60,75164.93,1100805729400],
+      ["2026-04-21",76053.62,75901.71,1058575932060],
+      ["2026-04-22",76399.97,78131.68,1124697421695],
+      ["2026-04-23",76622.19,77955.49,1086146784116],
+      ["2026-04-24",76691.35,77886.76,881725874544],
+      ["2026-04-25",76845.52,77547.18,613527060619],
+      ["2026-04-26",77221.14,77960.26,426774053086],
+      ["2026-04-27",77594.79,77780.46,817602643232],
+      ["2026-04-28",77688.32,76556.39,844969728766],
+      ["2026-04-29",77465.46,76571.70,875063140786],
+      ["2026-04-30",77199.73,76095.38,930575970347],
+      ["2026-05-01",77154.18,77567.88,809342074108],
+      ["2026-05-02",77269.32,78353.16,719273887175],
+      ["2026-05-03",77353.70,78550.92,435317662746],
+      ["2026-05-04",77629.70,79712.45,1017076195531],
+      ["2026-05-05",78262.40,80985.34,1099932687466],
+      ["2026-05-06",78976.10,81567.57,1041097058146],
+      ["2026-05-07",79627.56,80655.61,943945616435],
+      ["2026-05-08",79960.97,79901.73,891666480123],
+      ["2026-05-09",80261.96,80460.13,643419050428],
+      ["2026-05-10",80603.93,80944.71,460344222457],
+      ["2026-05-11",80829.25,81289.64,851417758850],
+      ["2026-05-12",80807.25,80831.35,777328558721],
+      ["2026-05-13",80622.84,80276.70,935762299456],
+      ["2026-05-14",80563.92,80243.17,1003460666757],
+      ["2026-05-15",80592.18,80099.54,1050696358392],
+      ["2026-05-16",80301.63,78426.30,791719572045],
+      ["2026-05-17",79897.76,78117.62,501624578353]
+    ];
+    const labels = warehouseRows.map(r => r[0].slice(5));   // "MM-DD"
+    const movingAvgData = warehouseRows.map(r => r[1]);
+    const avgPriceData  = warehouseRows.map(r => r[2]);
+    const volumeData    = warehouseRows.map(r => +(r[3] / 1e9).toFixed(2)); // billions
+
+    const sharedOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: chartTextColor() } } },
+      scales: {
+        x: { ticks: { color: chartTextColor(), maxTicksLimit: 10 }, grid: { color: chartGridColor() } },
+        y: { ticks: { color: chartTextColor() }, grid: { color: chartGridColor() } }
+      }
+    };
+    new Chart(document.getElementById('priceChart'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: '7-day moving avg price (USD)', data: movingAvgData, borderColor: '#0891b2', backgroundColor: 'rgba(8,145,178,0.12)', tension: 0.38, fill: true, pointRadius: 2 },
+          { label: 'Avg daily price (USD)', data: avgPriceData, borderColor: '#7c3aed', backgroundColor: 'transparent', tension: 0.38, borderDash: [4, 3], pointRadius: 0 }
+        ]
+      },
+      options: sharedOptions
+    });
+    new Chart(document.getElementById('volumeChart'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{ label: 'Daily volume (USD billions)', data: volumeData, backgroundColor: '#f59e0b', borderRadius: 3 }]
+      },
+      options: sharedOptions
+    });
+  </script>
+</body>
+</html>

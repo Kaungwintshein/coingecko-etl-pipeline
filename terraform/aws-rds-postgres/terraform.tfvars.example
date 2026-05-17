@@ -1,0 +1,4 @@
+vpc_id                 = "vpc-xxxxxxxx"
+private_subnet_ids     = ["subnet-aaaaaaaa", "subnet-bbbbbbbb"]
+allowed_postgres_cidrs = ["10.0.0.0/16"]
+database_password      = "replace-with-a-strong-secret"

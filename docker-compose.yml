@@ -1,0 +1,100 @@
+x-airflow-common: &airflow-common
+  image: apache/airflow:2.10.4-python3.11
+  environment: &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres:5432/airflow
+    AIRFLOW__WEBSERVER__SECRET_KEY: local-dev-secret-key
+    AIRFLOW_UID: "50000"
+    PYTHONPATH: /opt/airflow/project
+    COINGECKO_API_KEY: ${COINGECKO_API_KEY:-}
+    COIN_ID: ${COIN_ID:-bitcoin}
+    VS_CURRENCY: ${VS_CURRENCY:-usd}
+    MARKET_CHART_DAYS: ${MARKET_CHART_DAYS:-30}
+    API_TIMEOUT_SECONDS: ${API_TIMEOUT_SECONDS:-30}
+    RAW_DATA_DIR: /opt/airflow/project/data/raw
+    PROCESSED_DATA_DIR: /opt/airflow/project/data/processed
+    POSTGRES_HOST: postgres
+    POSTGRES_PORT: 5432
+    POSTGRES_DB: ${POSTGRES_DB:-crypto_warehouse}
+    POSTGRES_USER: ${POSTGRES_USER:-warehouse_user}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-warehouse_password}
+    _PIP_ADDITIONAL_REQUIREMENTS: -r /opt/airflow/project/airflow/requirements.txt
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+    - ./:/opt/airflow/project
+  user: "${AIRFLOW_UID:-50000}:0"
+  depends_on:
+    airflow-postgres:
+      condition: service_healthy
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-crypto_warehouse}
+      POSTGRES_USER: ${POSTGRES_USER:-warehouse_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-warehouse_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - warehouse_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-warehouse_user} -d ${POSTGRES_DB:-crypto_warehouse}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  airflow-postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: airflow
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+    volumes:
+      - airflow_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow -d airflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  airflow-init:
+    <<: *airflow-common
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db migrate
+        airflow users create \
+          --username airflow \
+          --firstname Airflow \
+          --lastname Admin \
+          --role Admin \
+          --email airflow@example.com \
+          --password airflow || true
+
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    restart: unless-stopped
+
+volumes:
+  warehouse_postgres_data:
+  airflow_postgres_data:
